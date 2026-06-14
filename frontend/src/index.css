@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Default: Premium Deep Space Dark Mode matching the mockup exactly */
+  --bg-color: #080b13;
+  --text-color: #f8fafc;
+  --text-muted: #94a3b8;
+  --card-bg: #0f1524;
+  --card-border: #141f32;
+  --sidebar-bg: #070a13;
+  --sidebar-active: #132247;
+  --grid-line-color: rgba(30, 41, 59, 0.15);
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --accent-cyan: #0ea5e9; /* sky-500 */
+  --accent-cyan-bg: rgba(14, 165, 233, 0.1);
+  --accent-indigo: #6366f1; /* indigo-500 */
+  --accent-indigo-bg: rgba(99, 102, 241, 0.1);
+  --accent-emerald: #10b981; /* emerald-500 */
+  --accent-emerald-bg: rgba(16, 185, 129, 0.15);
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
+
+:root.light {
+  /* High-Visibility Light Mode (fresh, clean, modern SaaS visual) */
+  --bg-color: #f1f5f9; /* slate-100 */
+  --text-color: #0f172a; /* slate-900 */
+  --text-muted: #475569; /* slate-600 */
+  --card-bg: #ffffff; /* white */
+  --card-border: #cbd5e1; /* slate-300 */
+  --sidebar-bg: #e2e8f0; /* slate-200 */
+  --sidebar-active: #cbd5e1; /* slate-300 */
+  --grid-line-color: rgba(148, 163, 184, 0.12);
+  --shadow-color: rgba(148, 163, 184, 0.2);
+  --accent-cyan: #0284c7; /* sky-600 */
+  --accent-cyan-bg: rgba(2, 132, 199, 0.08);
+  --accent-indigo: #4f46e5; /* indigo-600 */
+  --accent-indigo-bg: rgba(79, 70, 229, 0.08);
+  --accent-emerald: #059669; /* emerald-600 */
+  --accent-emerald-bg: rgba(5, 150, 105, 0.1);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+}
+
+@layer base {
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  .font-console {
+    font-family: 'Share Tech Mono', monospace;
+  }
+}
+
+/* Custom app utility bindings */
+.bg-app {
+  background-color: var(--bg-color);
+}
+.bg-panel {
+  background-color: var(--card-bg);
+}
+.bg-sidebar {
+  background-color: var(--sidebar-bg);
+}
+.bg-sidebar-active {
+  background-color: var(--sidebar-active);
+}
+.text-main {
+  color: var(--text-color);
+}
+.text-desc {
+  color: var(--text-muted);
+}
+.border-panel {
+  border-color: var(--card-border);
+}
+.shadow-panel-md {
+  box-shadow: var(--shadow-md);
+}
+.shadow-panel-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Grid overlay background */
+.bg-grid {
+  background-size: 30px 30px;
+  background-image: 
+    linear-gradient(to right, var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line-color) 1px, transparent 1px);
+}
+
+/* Empty placeholder to prevent code references crashes but keep it clean and non-dark */
+.crt-effect {
+  position: relative;
+}
+
+/* Premium glows adapting to colors instead of heavy neons */
+.glow-border-cyan {
+  border: 1px solid var(--card-border);
+  box-shadow: 0 0 15px var(--shadow-color);
+}
+
+.glow-border-green {
+  border: 1px solid var(--card-border);
+  box-shadow: 0 0 15px var(--shadow-color);
+}
+
+.glow-border-red {
+  border: 1px solid var(--card-border);
+  box-shadow: 0 0 15px var(--shadow-color);
+}
+
+.glow-border-amber {
+  border: 1px solid var(--card-border);
+  box-shadow: 0 0 15px var(--shadow-color);
+}
+
+/* Custom terminal scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Status LEDs */
+@keyframes led-blink {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.led-blink-green {
+  animation: led-blink 1.5s infinite;
+  background-color: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.led-blink-red {
+  animation: led-blink 1s infinite;
+  background-color: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+.led-blink-amber {
+  animation: led-blink 1.8s infinite;
+  background-color: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.led-blink-cyan {
+  animation: led-blink 1.6s infinite;
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
+}
+
+/* Pulsing radar dots */
+@keyframes radar-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+.radar-glow::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: inherit;
+  animation: radar-pulse 2.2s infinite;
+}
+
+/* Leaflet dark maps adjustments */
+.leaflet-container {
+  background: var(--bg-color) !important;
+}
+
+.custom-map-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.leaflet-bar {
+  border: 1px solid var(--card-border) !important;
+  background-color: var(--card-bg) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.leaflet-bar a {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--card-border) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--sidebar-active) !important;
+  color: var(--accent-cyan) !important;
+}
+
+.leaflet-control-zoom-in, .leaflet-control-zoom-out {
+  border-color: var(--card-border) !important;
+}
