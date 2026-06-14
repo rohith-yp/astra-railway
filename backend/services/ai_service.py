@@ -3,7 +3,8 @@ import json
 import httpx
 from dotenv import load_dotenv
 
-# Load envs
+# Local .env files are for development only. Vercel injects production values
+# into the process environment.
 load_dotenv()
 
 class AIService:
@@ -12,7 +13,7 @@ class AIService:
         self.mistral_key = os.getenv("MISTRAL_API_KEY")
         
     def refresh_keys(self):
-        load_dotenv(override=True)
+        load_dotenv()
         self.groq_key = os.getenv("GROQ_API_KEY")
         self.mistral_key = os.getenv("MISTRAL_API_KEY")
 

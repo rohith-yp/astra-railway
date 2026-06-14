@@ -8,13 +8,14 @@ load_dotenv()
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
-# Determine database path
-# Vercel serverless has a read-only filesystem except /tmp
-is_vercel = os.getenv("VERCEL") or os.getenv("VERCEL_ENV")
+# Vercel serverless has a read-only filesystem except /tmp. DATABASE_URL
+# remains available for deployments that need durable external storage.
+DATABASE_URL = os.getenv("DATABASE_URL")
+is_vercel = bool(os.getenv("VERCEL") or os.getenv("VERCEL_ENV"))
 
-if is_vercel:
+if not DATABASE_URL and is_vercel:
     DATABASE_URL = "sqlite:////tmp/astra_rail.db"
-else:
+elif not DATABASE_URL:
     # Local development: place inside backend/ folder or project directory
     backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     db_path = os.path.join(backend_dir, "astra_rail.db")

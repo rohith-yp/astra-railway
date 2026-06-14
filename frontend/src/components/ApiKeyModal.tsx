@@ -8,8 +8,6 @@ interface ApiKeyModalProps {
 }
 
 export default function ApiKeyModal({ isOpen, onClose, onVerifySuccess }: ApiKeyModalProps) {
-  const [groqKey, setGroqKey] = useState('');
-  const [mistralKey, setMistralKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,12 +39,7 @@ export default function ApiKeyModal({ isOpen, onClose, onVerifySuccess }: ApiKey
 
     try {
       const response = await fetch('/api/auth/verify-keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          groq_api_key: groqKey,
-          mistral_api_key: mistralKey
-        })
+        method: 'POST'
       });
 
       if (!response.ok) {
@@ -86,38 +79,8 @@ export default function ApiKeyModal({ isOpen, onClose, onVerifySuccess }: ApiKey
         {/* Modal Content */}
         <form onSubmit={handleVerify} className="p-6 space-y-6">
           <p className="text-xs text-slate-400 leading-relaxed font-sans">
-            Enter your API credentials to operationalize ASTRA Rail's Agentic AI models. If keys are unavailable or fail validation, the system automatically redirects to <span className="text-amber-400 font-console">Demo AI Mode</span> using local simulated monologues.
+            Groq and Mistral credentials are loaded from the deployment environment. This check verifies the configured gateways without exposing secrets to the browser. If keys are unavailable, the system uses <span className="text-amber-400 font-console">Demo AI Mode</span>.
           </p>
-
-          <div className="space-y-4">
-            {/* Groq Key Input */}
-            <div className="space-y-1">
-              <label className="block text-xs uppercase text-slate-400 tracking-wider">GROQ API KEY</label>
-              <div className="relative">
-                <input
-                  type="password"
-                  placeholder="gsk_..."
-                  value={groqKey}
-                  onChange={(e) => setGroqKey(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-sans"
-                />
-              </div>
-            </div>
-
-            {/* Mistral Key Input */}
-            <div className="space-y-1">
-              <label className="block text-xs uppercase text-slate-400 tracking-wider">MISTRAL API KEY</label>
-              <div className="relative">
-                <input
-                  type="password"
-                  value={mistralKey}
-                  onChange={(e) => setMistralKey(e.target.value)}
-                  placeholder="Enter Mistral API Key..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-sans"
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Connection Indicators */}
           {status && (
@@ -171,7 +134,7 @@ export default function ApiKeyModal({ isOpen, onClose, onVerifySuccess }: ApiKey
               ) : (
                 <>
                   <ShieldCheck className="w-4 h-4" />
-                  <span>AUTHENTICATE & SECURE</span>
+                  <span>VERIFY ENVIRONMENT KEYS</span>
                 </>
               )}
             </button>

@@ -11,6 +11,15 @@ def test_health():
     data = response.json()
     print("Health Status Output:", data)
     assert data["status"] == "operational"
+    assert data["deployment"] == "single-vercel-project"
+    assert data["database"]["status"] == "operational"
+    assert data["database"]["stations"] > 0
+    assert "groq_configured" in data["ai"]
+    assert "mistral_configured" in data["ai"]
+
+def test_vercel_entrypoint():
+    from api.index import app as vercel_app
+    assert vercel_app is app
 
 def test_stats():
     print("\n--- Testing Dashboard Stats Endpoint ---")
@@ -68,6 +77,20 @@ def test_simulation_workflow_a42():
             assert key in monologue
             
     print("Agent simulation workflow integration tested successfully.")
+
+def test_top_level_api_routes():
+    prediction = client.post("/api/predict", json={
+        "scenario_type": "A-42-fracture",
+        "step": 1
+    })
+    assert prediction.status_code == 200
+    assert prediction.json()["agent"] == "TrackHealthAgent"
+
+    analysis = client.post("/api/analyze", json={
+        "scenario_type": "A-42-fracture"
+    })
+    assert analysis.status_code == 200
+    assert analysis.json()["status"] == "resolved"
 
 if __name__ == "__main__":
     print("==================================================")

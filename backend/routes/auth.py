@@ -1,13 +1,8 @@
-import os
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter
 from pydantic import BaseModel
 from backend.services.ai_service import ai_service
 
 router = APIRouter()
-
-class APIKeyRequest(BaseModel):
-    groq_api_key: str
-    mistral_api_key: str
 
 class VerificationResponse(BaseModel):
     groq_connected: bool
@@ -15,40 +10,12 @@ class VerificationResponse(BaseModel):
     demo_mode: bool
     message: str
 
-def write_keys_to_env(groq_key: str, mistral_key: str):
-    """
-    Safely writes keys to .env files in both backend/ and project root.
-    """
-    env_content = f"GROQ_API_KEY={groq_key}\nMISTRAL_API_KEY={mistral_key}\n"
-    
-    # Write to backend/.env
-    backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    backend_env = os.path.join(backend_dir, ".env")
-    with open(backend_env, "w") as f:
-        f.write(env_content)
-        
-    # Write to workspace root .env
-    root_env = os.path.join(os.path.dirname(backend_dir), ".env")
-    with open(root_env, "w") as f:
-        f.write(env_content)
-
 @router.post("/verify-keys", response_model=VerificationResponse)
-async def verify_keys(payload: APIKeyRequest):
-    groq_ok = False
-    mistral_ok = False
-    
-    if payload.groq_api_key:
-        groq_ok = await ai_service.verify_groq(payload.groq_api_key)
-        
-    if payload.mistral_api_key:
-        mistral_ok = await ai_service.verify_mistral(payload.mistral_api_key)
-        
-    # Write to environment file
-    write_keys_to_env(payload.groq_api_key, payload.mistral_api_key)
-    
-    # Reload keys in memory
+async def verify_keys():
+    """Verify credentials supplied through server environment variables."""
     ai_service.refresh_keys()
-    
+    groq_ok = await ai_service.verify_groq()
+    mistral_ok = await ai_service.verify_mistral()
     demo = not (groq_ok and mistral_ok)
     
     status_msg = ""

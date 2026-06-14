@@ -44,12 +44,6 @@ export default function App() {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportCopied, setReportCopied] = useState(false);
 
-  // Settings tab validation inputs & status alerts
-  const [groqKeyInput, setGroqKeyInput] = useState('');
-  const [mistralKeyInput, setMistralKeyInput] = useState('');
-  const [settingsStatus, setSettingsStatus] = useState('');
-  const [settingsStatusType, setSettingsStatusType] = useState<'success' | 'error' | ''>('');
-
   // Sidebar navigation control
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -100,23 +94,23 @@ export default function App() {
   // Fetch initial datasets
   const loadSystemData = async () => {
     try {
-      const [statsRes, stationsRes, trainsRes, tracksRes, scenariosRes, authRes, incidentsRes, responsesRes] = await Promise.all([
+      const [healthRes, statsRes, stationsRes, trainsRes, tracksRes, scenariosRes, incidentsRes, responsesRes] = await Promise.all([
+        fetch('/api/health'),
         fetch('/api/data/stats'),
         fetch('/api/data/stations'),
         fetch('/api/data/trains'),
         fetch('/api/data/track-sections'),
         fetch('/api/simulation/scenarios'),
-        fetch('/api/auth/status'),
         fetch('/api/data/incidents?limit=100'),
         fetch('/api/data/emergency-responses')
       ]);
 
+      if (healthRes.ok) setApiStatus(await healthRes.json());
       if (statsRes.ok) setStats(await statsRes.json());
       if (stationsRes.ok) setStations(await stationsRes.json());
       if (trainsRes.ok) setTrains(await trainsRes.json());
       if (tracksRes.ok) setTracks(await tracksRes.json());
       if (scenariosRes.ok) setScenarios(await scenariosRes.json());
-      if (authRes.ok) setApiStatus(await authRes.json());
       if (incidentsRes.ok) {
         const incData = await incidentsRes.json();
         setIncidents(incData);
@@ -140,7 +134,7 @@ export default function App() {
     setLoading(true);
     setAutopilotResult(null); // Clear autopilot pane
     try {
-      const response = await fetch('/api/simulation/run-step', {
+      const response = await fetch('/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -233,7 +227,7 @@ export default function App() {
     setLoading(true);
     setAutopilotResult(null);
     try {
-      const response = await fetch('/api/simulation/autopilot-resolve', {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -384,46 +378,6 @@ export default function App() {
     });
     setFeedEvents([]);
     await loadSystemData();
-  };
-
-  const handleSaveKeys = async () => {
-    if (!groqKeyInput && !mistralKeyInput) {
-      setSettingsStatus("Please enter at least one API key value.");
-      setSettingsStatusType("error");
-      return;
-    }
-    
-    setLoading(true);
-    setSettingsStatus("Verifying API credentials with Groq and Mistral gateways...");
-    setSettingsStatusType("");
-    try {
-      const response = await fetch('/api/auth/verify-keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          groq_api_key: groqKeyInput,
-          mistral_api_key: mistralKeyInput
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error("API keys verification failed.");
-      }
-      
-      const data = await response.json();
-      setApiStatus(data);
-      setSettingsStatus(data.message);
-      setSettingsStatusType(data.demo_mode ? "error" : "success");
-      
-      setGroqKeyInput('');
-      setMistralKeyInput('');
-    } catch (err: any) {
-      console.error(err);
-      setSettingsStatus("Exception connecting to backend keys manager.");
-      setSettingsStatusType("error");
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleGenerateReport = () => {
@@ -982,14 +936,14 @@ export default function App() {
                   <div className="grid grid-cols-2 gap-2 text-[9px] font-console">
                     <div className="p-2 bg-app/50 rounded border border-panel flex items-center justify-between">
                       <span>GROQ:</span>
-                      <span className={apiStatus?.groq_connected ? "text-emerald-500 font-bold" : "text-amber-500 font-bold"}>
-                        {apiStatus?.groq_connected ? "LIVE" : "FALLBACK"}
+                      <span className={apiStatus?.ai?.groq_configured ? "text-emerald-500 font-bold" : "text-amber-500 font-bold"}>
+                        {apiStatus?.ai?.groq_configured ? "CONFIGURED" : "FALLBACK"}
                       </span>
                     </div>
                     <div className="p-2 bg-app/50 rounded border border-panel flex items-center justify-between">
                       <span>MISTRAL:</span>
-                      <span className={apiStatus?.mistral_connected ? "text-emerald-500 font-bold" : "text-amber-500 font-bold"}>
-                        {apiStatus?.mistral_connected ? "LIVE" : "FALLBACK"}
+                      <span className={apiStatus?.ai?.mistral_configured ? "text-emerald-500 font-bold" : "text-amber-500 font-bold"}>
+                        {apiStatus?.ai?.mistral_configured ? "CONFIGURED" : "FALLBACK"}
                       </span>
                     </div>
                   </div>
@@ -1867,9 +1821,9 @@ export default function App() {
                   <div className="bg-app/30 border border-panel/50 rounded-lg p-3 text-[9px] font-sans text-desc space-y-1.5 leading-relaxed">
                     <span className="text-[8.5px] font-console font-bold text-sky-400 uppercase block">TELEMETRY SYSTEM METADATA:</span>
                     <div>• Version code: ASTRA Rail CC v1.0.4</div>
-                    <div>• Port configuration: Port 8000 (Localhost Node)</div>
+                    <div>• Deployment topology: Single-origin Vercel project</div>
                     <div>• API state indicator: Dual-LLM safety checks</div>
-                    <div>• Target database location: <span className="font-mono text-[8.5px] text-main">backend/astra_rail.db</span></div>
+                    <div>• API route namespace: <span className="font-mono text-[8.5px] text-main">/api/*</span></div>
                   </div>
                 </div>
               </div>

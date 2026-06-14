@@ -86,4 +86,3 @@ async def run_autopilot_resolve(payload: AutopilotRequest, db: Session = Depends
     except Exception as e:
         print(f"Error in run_autopilot_resolve route: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-

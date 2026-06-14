@@ -1,3 +1,4 @@
+import os
 import random
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session, sessionmaker
@@ -396,46 +397,59 @@ def initialize_database_data(db: Session):
         print("Database already populated. Skipping generation.")
         return
         
+    is_vercel = bool(os.getenv("VERCEL") or os.getenv("VERCEL_ENV"))
+    counts = {
+        "stations": 50 if is_vercel else 200,
+        "trains": 150 if is_vercel else 500,
+        "sections": 200 if is_vercel else 1000,
+        "inspections": 500 if is_vercel else 5000,
+        "incidents": 200 if is_vercel else 1000,
+        "crowds": 500 if is_vercel else 5000,
+        "weather": 250 if is_vercel else 2000,
+        "responses": 200 if is_vercel else 1000,
+        "simulations": 100 if is_vercel else 500,
+    }
+
     print("Generating Stations...")
-    stations = generate_stations(200)
+    stations = generate_stations(counts["stations"])
     db.add_all(stations)
     db.commit() # Commit to resolve references and allow queries
     
     print("Generating Trains...")
-    trains = generate_trains(stations, 500)
+    trains = generate_trains(stations, counts["trains"])
     db.add_all(trains)
     
     print("Generating Track Sections...")
-    sections = generate_track_sections(stations, 1000)
+    sections = generate_track_sections(stations, counts["sections"])
     db.add_all(sections)
     db.commit()
     
     print("Generating Track Inspections...")
-    inspections = generate_track_inspections(sections, 5000)
+    inspections = generate_track_inspections(sections, counts["inspections"])
     # Bulk insert for speed
     db.bulk_save_objects(inspections)
     
     print("Generating Incidents...")
-    incidents = generate_incidents(sections, 1000)
+    incidents = generate_incidents(sections, counts["incidents"])
     db.bulk_save_objects(incidents)
     db.commit()
     
     print("Generating Passenger Crowd Data...")
-    crowds = generate_passenger_crowds(stations, 5000)
+    crowds = generate_passenger_crowds(stations, counts["crowds"])
     db.bulk_save_objects(crowds)
     
     print("Generating Weather Impacts...")
-    weathers = generate_weather_impacts(sections, 2000)
+    weathers = generate_weather_impacts(sections, counts["weather"])
     db.bulk_save_objects(weathers)
     
     # Reload incidents to link response records
     all_incidents = db.query(Incident).all()
     print("Generating Emergency Responses...")
-    responses = generate_emergency_responses(all_incidents, 1000)
+    responses = generate_emergency_responses(all_incidents, counts["responses"])
     db.bulk_save_objects(responses)
     
     print("Generating Simulations...")
-    simulations = generate_simulations(500)
+    simulations = generate_simulations(counts["simulations"])
     db.bulk_save_objects(simulations)
     
     db.commit()
